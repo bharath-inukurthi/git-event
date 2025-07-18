@@ -134,6 +134,91 @@ function initAboutAnimations() {
 }
 
 // Resume download functionality
+// Initialize Skills section animations when in view
+function initSkillsAnimations() {
+    const skillsSection = document.querySelector('.skills-section');
+    if (!skillsSection) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Add staggered animation to skill cards
+                const skillCards = entry.target.querySelectorAll('.skill-card');
+                skillCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+                
+                // Animate section title
+                const sectionTitle = entry.target.querySelector('.section-title');
+                if (sectionTitle) {
+                    sectionTitle.style.opacity = '1';
+                    sectionTitle.style.transform = 'translateY(0)';
+                }
+                
+                // Animate ticker
+                const ticker = entry.target.querySelector('.learning-ticker');
+                if (ticker) {
+                    setTimeout(() => {
+                        ticker.style.opacity = '1';
+                        ticker.style.transform = 'translateY(0)';
+                    }, 800);
+                }
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.2
+    });
+    
+    observer.observe(skillsSection);
+}
+
+// Add skill card hover sound effect (optional)
+function initSkillCardInteractions() {
+    const skillCards = document.querySelectorAll('.skill-card');
+    
+    skillCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            // Add subtle pulse animation on hover
+            this.style.animation = 'pulse 0.6s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            // Remove pulse animation
+            this.style.animation = '';
+        });
+        
+        // Add click effect
+        card.addEventListener('click', function() {
+            // Add click ripple effect
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+}
+
+// Pause ticker animation when user hovers over it
+function initTickerInteractions() {
+    const ticker = document.querySelector('.ticker-text');
+    const tickerContainer = document.querySelector('.learning-ticker');
+    
+    if (ticker && tickerContainer) {
+        tickerContainer.addEventListener('mouseenter', () => {
+            ticker.style.animationPlayState = 'paused';
+        });
+        
+        tickerContainer.addEventListener('mouseleave', () => {
+            ticker.style.animationPlayState = 'running';
+        });
+    }
+}
+
 function initResumeDownload() {
     const resumeBtn = document.querySelector('.resume-btn');
     if (!resumeBtn) return;
@@ -340,6 +425,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize About section features
     initAboutAnimations();
     initResumeDownload();
+    
+    // Initialize Skills section features
+    initSkillsAnimations();
+    initSkillCardInteractions();
+    initTickerInteractions();
 });
 
 // Handle page refresh - ensure typing starts fresh
