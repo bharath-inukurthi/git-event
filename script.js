@@ -66,63 +66,56 @@ function typeWriter() {
     }
 }
 
-// About section typing effect
-function typeAboutText() {
-    if (!aboutTypingText || aboutTypingComplete) return;
-    
-    if (aboutCharIndex < aboutPhrase.length) {
-        aboutTypingText.textContent += aboutPhrase.charAt(aboutCharIndex);
-        aboutCharIndex++;
-        setTimeout(typeAboutText, aboutTypingSpeed);
-    } else {
-        aboutTypingComplete = true;
-        // Hide cursor after typing is complete
-        const aboutCursor = document.querySelector('.about-cursor');
-        if (aboutCursor) {
-            setTimeout(() => {
-                aboutCursor.style.opacity = '0';
-            }, 2000);
-        }
-        // Start quote rotator after about text is complete
-        startQuoteRotator();
-    }
-}
+// About section configuration
+const aboutQuotes = [
+    "The best way to predict the future is to create it.",
+    "Innovation distinguishes between a leader and a follower.",
+    "Code is like humor. When you have to explain it, it's bad.",
+    "The only way to do great work is to love what you do."
+];
 
-// Quote rotator function
-function startQuoteRotator() {
-    if (!quoteText) return;
+let currentAboutQuoteIndex = 0;
+let aboutQuoteInterval;
+
+// Initialize About section animations and quote rotator
+function initAboutAnimations() {
+    const aboutSection = document.querySelector('.about-section');
+    const quoteText = document.querySelector('.quote-text');
     
-    function showQuote() {
+    if (!aboutSection || !quoteText) return;
+    
+    // Start quote rotator
+    function showAboutQuote() {
         quoteText.style.opacity = '0';
-        quoteText.style.transform = 'translateY(20px)';
+        quoteText.style.transform = 'translateY(10px)';
         
         setTimeout(() => {
-            quoteText.textContent = quotes[currentQuoteIndex];
+            quoteText.textContent = aboutQuotes[currentAboutQuoteIndex];
             quoteText.style.opacity = '1';
             quoteText.style.transform = 'translateY(0)';
-            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+            currentAboutQuoteIndex = (currentAboutQuoteIndex + 1) % aboutQuotes.length;
         }, 300);
     }
     
-    // Show first quote immediately
-    showQuote();
+    // Show first quote after page load
+    setTimeout(() => {
+        showAboutQuote();
+        aboutQuoteInterval = setInterval(showAboutQuote, 4000);
+    }, 3000);
     
-    // Set up interval for quote rotation
-    quoteInterval = setInterval(showQuote, 4000);
-}
-
-// Initialize About section animations when in view
-function initAboutAnimations() {
-    const aboutSection = document.querySelector('.about-section');
-    if (!aboutSection) return;
-    
+    // Add scroll-triggered particle effects
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting && !aboutTypingComplete) {
-                // Start typing effect with delay
-                setTimeout(() => {
-                    typeAboutText();
-                }, 1000);
+            if (entry.isIntersecting) {
+                // Trigger particle animations
+                const particles = entry.target.querySelectorAll('.particle');
+                particles.forEach((particle, index) => {
+                    setTimeout(() => {
+                        particle.style.opacity = '1';
+                        particle.style.transform = 'scale(1)';
+                    }, index * 200);
+                });
+                
                 observer.unobserve(entry.target);
             }
         });
@@ -131,6 +124,141 @@ function initAboutAnimations() {
     });
     
     observer.observe(aboutSection);
+}
+
+// Enhanced download button functionality
+function initAboutDownload() {
+    const downloadBtn = document.querySelector('.download-btn');
+    if (!downloadBtn) return;
+    
+    downloadBtn.addEventListener('click', function() {
+        // Create resume content
+        const resumeContent = `
+Alex's Professional Resume
+=========================
+
+Personal Information:
+- Name: Alex
+- Position: 3rd Year CSE Student
+- Specialization: AI and Web Development
+
+Technical Skills:
+- Frontend: HTML, CSS, JavaScript, React
+- Backend: Python
+- Version Control: Git
+- Areas of Interest: Artificial Intelligence, Web Development
+
+Education:
+- Bachelor of Technology in Computer Science Engineering
+- Currently in 3rd Year
+
+Contact Information:
+- Email: alex@example.com
+- LinkedIn: linkedin.com/in/alex
+- Portfolio: [Your Portfolio URL]
+
+Projects & Experience:
+- Web Development Projects
+- AI/ML Learning Projects
+- Open Source Contributions
+
+Goals:
+- Passionate about creating innovative solutions
+- Committed to continuous learning and growth
+- Seeking opportunities in AI and Web Development
+        `;
+        
+        const blob = new Blob([resumeContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Alex_Resume.txt';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        // Add visual feedback
+        const originalContent = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<span class="doc-icon">✅</span><span class="btn-text">Downloaded!</span>';
+        downloadBtn.style.background = 'linear-gradient(45deg, #48bb78, #38a169)';
+        downloadBtn.style.color = 'white';
+        
+        setTimeout(() => {
+            downloadBtn.innerHTML = originalContent;
+            downloadBtn.style.background = 'rgba(255, 255, 255, 0.9)';
+            downloadBtn.style.color = '#667eea';
+        }, 2000);
+    });
+    
+    // Add hover sound effect (optional)
+    downloadBtn.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px) scale(1.05)';
+    });
+    
+    downloadBtn.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+    });
+}
+
+// Initialize floating particles interaction
+function initParticleInteraction() {
+    const particles = document.querySelectorAll('.particle');
+    
+    particles.forEach(particle => {
+        // Add click effect to particles
+        particle.addEventListener('click', function() {
+            this.style.transform = 'scale(1.5)';
+            this.style.opacity = '1';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+                this.style.opacity = '0.6';
+            }, 300);
+        });
+        
+        // Add hover effect
+        particle.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.2)';
+            this.style.opacity = '1';
+        });
+        
+        particle.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.opacity = '0.6';
+        });
+    });
+}
+
+// Initialize profile photo interactions
+function initProfileInteractions() {
+    const profileBorder = document.querySelector('.profile-border');
+    const profilePhoto = document.querySelector('.profile-photo');
+    
+    if (!profileBorder || !profilePhoto) return;
+    
+    profileBorder.addEventListener('click', function() {
+        // Add click animation
+        this.style.animation = 'none';
+        this.style.transform = 'scale(1.1) rotate(360deg)';
+        
+        setTimeout(() => {
+            this.style.animation = 'rotateBorder 8s linear infinite';
+            this.style.transform = 'scale(1)';
+        }, 500);
+    });
+    
+    // Add double-click for special effect
+    profileBorder.addEventListener('dblclick', function() {
+        profilePhoto.style.animation = 'none';
+        profilePhoto.style.transform = 'scale(1.2)';
+        profilePhoto.style.filter = 'brightness(1.3) contrast(1.2)';
+        
+        setTimeout(() => {
+            profilePhoto.style.animation = 'pulse 2s ease-in-out infinite';
+            profilePhoto.style.transform = 'scale(1)';
+            profilePhoto.style.filter = 'none';
+        }, 1000);
+    });
 }
 
 // Resume download functionality
@@ -433,7 +561,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize About section features
     initAboutAnimations();
-    initResumeDownload();
+    initAboutDownload();
+    initParticleInteraction();
+    initProfileInteractions();
     
     // Initialize Skills section features
     initSkillsAnimations();
