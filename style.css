@@ -550,11 +550,12 @@ html {
 
 .ticker-text {
     display: inline-block;
-    animation: scroll-left 15s linear infinite;
+    animation: scroll-left 25s linear infinite;
     font-size: 1.1rem;
     font-weight: 500;
     color: white;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding-right: 100px;
 }
 
 @keyframes scroll-left {
