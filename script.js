@@ -1,16 +1,35 @@
 // Typing effect configuration
 const typingText = document.querySelector('.typing-text');
+const aboutTypingText = document.querySelector('.about-typing');
+const quoteText = document.querySelector('.quote-text');
+
 const phrases = ['CSE Student', 'Web Developer', 'AI Enthusiast'];
+const aboutPhrase = "Hi, I'm Alex, a 3rd Year CSE student passionate about AI and Web Dev.";
+const quotes = [
+    "Code is like humor. When you have to explain it, it's bad.",
+    "The best way to predict the future is to create it.",
+    "Innovation distinguishes between a leader and a follower."
+];
+
 let currentPhraseIndex = 0;
 let currentCharIndex = 0;
 let isTyping = true;
 let isDeleting = false;
+
+// About section typing variables
+let aboutCharIndex = 0;
+let aboutTypingComplete = false;
+
+// Quote rotator variables
+let currentQuoteIndex = 0;
+let quoteInterval;
 
 // Typing speed configuration
 const typingSpeed = 100;
 const deletingSpeed = 50;
 const pauseBetweenPhrases = 2000;
 const pauseBeforeDeleting = 1500;
+const aboutTypingSpeed = 80;
 
 function typeWriter() {
     const currentPhrase = phrases[currentPhraseIndex];
@@ -47,7 +66,119 @@ function typeWriter() {
     }
 }
 
-// Smooth scrolling for navigation links
+// About section typing effect
+function typeAboutText() {
+    if (!aboutTypingText || aboutTypingComplete) return;
+    
+    if (aboutCharIndex < aboutPhrase.length) {
+        aboutTypingText.textContent += aboutPhrase.charAt(aboutCharIndex);
+        aboutCharIndex++;
+        setTimeout(typeAboutText, aboutTypingSpeed);
+    } else {
+        aboutTypingComplete = true;
+        // Hide cursor after typing is complete
+        const aboutCursor = document.querySelector('.about-cursor');
+        if (aboutCursor) {
+            setTimeout(() => {
+                aboutCursor.style.opacity = '0';
+            }, 2000);
+        }
+        // Start quote rotator after about text is complete
+        startQuoteRotator();
+    }
+}
+
+// Quote rotator function
+function startQuoteRotator() {
+    if (!quoteText) return;
+    
+    function showQuote() {
+        quoteText.style.opacity = '0';
+        quoteText.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            quoteText.textContent = quotes[currentQuoteIndex];
+            quoteText.style.opacity = '1';
+            quoteText.style.transform = 'translateY(0)';
+            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+        }, 300);
+    }
+    
+    // Show first quote immediately
+    showQuote();
+    
+    // Set up interval for quote rotation
+    quoteInterval = setInterval(showQuote, 4000);
+}
+
+// Initialize About section animations when in view
+function initAboutAnimations() {
+    const aboutSection = document.querySelector('.about-section');
+    if (!aboutSection) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !aboutTypingComplete) {
+                // Start typing effect with delay
+                setTimeout(() => {
+                    typeAboutText();
+                }, 1000);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.3
+    });
+    
+    observer.observe(aboutSection);
+}
+
+// Resume download functionality
+function initResumeDownload() {
+    const resumeBtn = document.querySelector('.resume-btn');
+    if (!resumeBtn) return;
+    
+    resumeBtn.addEventListener('click', function() {
+        // Create a sample resume download (you can replace this with actual resume file)
+        const resumeContent = `
+Alex's Resume
+=============
+
+Education:
+- 3rd Year CSE Student
+
+Skills:
+- Web Development
+- AI/Machine Learning
+- JavaScript, Python, React
+
+Contact:
+- Email: alex@example.com
+- LinkedIn: linkedin.com/in/alex
+        `;
+        
+        const blob = new Blob([resumeContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Alex_Resume.txt';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        // Add visual feedback
+        const originalText = resumeBtn.innerHTML;
+        resumeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Downloaded!';
+        resumeBtn.style.background = 'linear-gradient(45deg, #48bb78, #38a169)';
+        
+        setTimeout(() => {
+            resumeBtn.innerHTML = originalText;
+            resumeBtn.style.background = 'linear-gradient(45deg, #667eea, #764ba2)';
+        }, 2000);
+    });
+}
+
 function smoothScroll() {
     const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
     const scrollArrow = document.querySelector('.scroll-arrow a');
@@ -167,8 +298,8 @@ function initIntersectionObserver() {
         });
     }, observerOptions);
     
-    // Observe elements that should animate on scroll
-    const animateElements = document.querySelectorAll('.about-section');
+    // Observe elements that should animate on scroll (excluding about section which has its own animations)
+    const animateElements = document.querySelectorAll('.skills-section, .contact-section');
     animateElements.forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
@@ -205,6 +336,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initScrollArrow();
     initIntersectionObserver();
     initMobileMenu();
+    
+    // Initialize About section features
+    initAboutAnimations();
+    initResumeDownload();
 });
 
 // Handle page refresh - ensure typing starts fresh
