@@ -142,15 +142,6 @@ function initSkillsAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                // Add staggered animation to skill cards
-                const skillCards = entry.target.querySelectorAll('.skill-card');
-                skillCards.forEach((card, index) => {
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 100);
-                });
-                
                 // Animate section title
                 const sectionTitle = entry.target.querySelector('.section-title');
                 if (sectionTitle) {
@@ -158,13 +149,31 @@ function initSkillsAnimations() {
                     sectionTitle.style.transform = 'translateY(0)';
                 }
                 
+                // Animate categories with staggered delays
+                const categories = entry.target.querySelectorAll('.skills-category');
+                categories.forEach((category, index) => {
+                    setTimeout(() => {
+                        category.style.opacity = '1';
+                        category.style.transform = 'translateY(0)';
+                        
+                        // Animate skill cards within each category
+                        const skillCards = category.querySelectorAll('.skill-card');
+                        skillCards.forEach((card, cardIndex) => {
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, cardIndex * 100);
+                        });
+                    }, index * 200);
+                });
+                
                 // Animate ticker
                 const ticker = entry.target.querySelector('.learning-ticker');
                 if (ticker) {
                     setTimeout(() => {
                         ticker.style.opacity = '1';
                         ticker.style.transform = 'translateY(0)';
-                    }, 800);
+                    }, 1000);
                 }
                 
                 observer.unobserve(entry.target);
@@ -177,7 +186,7 @@ function initSkillsAnimations() {
     observer.observe(skillsSection);
 }
 
-// Add skill card hover sound effect (optional)
+// Enhanced skill card interactions
 function initSkillCardInteractions() {
     const skillCards = document.querySelectorAll('.skill-card');
     
